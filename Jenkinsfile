@@ -59,12 +59,29 @@ pipeline {
                     echo === Creando volúmenes Docker ===
                     
                     docker volume create sgu-volume 2>nul
+                    IF %ERRORLEVEL% NEQ 0 (
+                        echo Volumen sgu-volume ya existe, continuando...
+                    ) ELSE (
+                        echo Volumen sgu-volume creado correctamente
+                    )
+                    
                     docker volume create certbot-conf 2>nul
+                    IF %ERRORLEVEL% NEQ 0 (
+                        echo Volumen certbot-conf ya existe, continuando...
+                    ) ELSE (
+                        echo Volumen certbot-conf creado correctamente
+                    )
                     
                     echo === Creando red Docker ===
                     docker network create sgu-net 2>nul
+                    IF %ERRORLEVEL% NEQ 0 (
+                        echo Red sgu-net ya existe, continuando...
+                    ) ELSE (
+                        echo Red sgu-net creada correctamente
+                    )
                     
                     echo Volúmenes y red verificados/creados
+                    echo Continuando con el despliegue...
                 '''
             }
         }
@@ -75,10 +92,13 @@ pipeline {
                 bat '''
                     echo === Deteniendo servicios previos ===
                     docker compose down
-                    
                     IF %ERRORLEVEL% NEQ 0 (
-                        echo No se pudieron detener servicios o no existen. Continuando...
+                        echo No hay servicios corriendo o ya fueron detenidos, continuando...
+                    ) ELSE (
+                        echo Servicios detenidos correctamente
                     )
+                    
+                    echo Continuando con el despliegue...
                 '''
             }
         }
@@ -90,7 +110,18 @@ pipeline {
                     echo === Limpiando imágenes anteriores ===
                     
                     docker rmi client:1.0-sgu 2>nul
+                    IF %ERRORLEVEL% NEQ 0 (
+                        echo Imagen client:1.0-sgu no existe o ya fue eliminada, continuando...
+                    ) ELSE (
+                        echo Imagen client:1.0-sgu eliminada correctamente
+                    )
+                    
                     docker rmi server:1.0-sgu 2>nul
+                    IF %ERRORLEVEL% NEQ 0 (
+                        echo Imagen server:1.0-sgu no existe o ya fue eliminada, continuando...
+                    ) ELSE (
+                        echo Imagen server:1.0-sgu eliminada correctamente
+                    )
                     
                     echo Limpieza completada
                 '''
